@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinGraph-AI | Crypto Payments Intelligence & SHAP Dashboard</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Cytoscape.js for Tactical Graph Visualization -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+  
+  <!-- Chart.js for Crypto Doughnut & SHAP Attributions -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  
+  <!-- Light Mode Banking Theme Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-[#F4F7FC] text-[#0F172A] min-h-screen flex antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- ===================================================================== -->
+  <!-- LEFT SLEEK SIDEBAR NAVIGATION (PRISTINE WHITE LIGHT MODE STYLE) -->
+  <!-- ===================================================================== -->
+  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-5 shrink-0 hidden md:flex min-h-screen shadow-sm">
+    
+    <!-- Top Branding & Navigation -->
+    <div class="space-y-6">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 px-2 py-1">
+        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-md">
+          <i class="fas fa-cubes-stacked text-white text-sm"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-1.5">
+            <span class="text-base font-extrabold tracking-tight text-slate-900">FinGraph</span>
+            <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-blue-50 text-blue-700 border border-blue-200">AI</span>
+          </div>
+          <p class="text-[9px] text-slate-500 font-semibold tracking-wider uppercase mt-0.5">FINANCIAL INTELLIGENCE</p>
+        </div>
+      </div>
+
+      <!-- Navigation Portals -->
+      <div class="space-y-1.5">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">Main Dashboard</div>
+        
+        <button id="sidebar-btn-user" onclick="switchPortal('USER')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-blue-600 text-white shadow-sm transition-all group">
+          <div class="flex items-center space-x-2.5">
+            <i class="fas fa-wallet text-white text-xs"></i>
+            <span>User Portal</span>
+          </div>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 status-dot-pulse"></span>
+        </button>
+
+        <button id="sidebar-btn-admin" onclick="switchPortal('ADMIN')" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all group">
+          <div class="flex items-center space-x-2.5">
+            <i class="fas fa-shield-halved text-slate-500 group-hover:text-blue-600"></i>
+            <span>Admin Tactical Graph</span>
+          </div>
+          <span class="pill-badge badge-crimson">ALERT SCAN</span>
+        </button>
+      </div>
+
+      <!-- Attack Simulation Shortcuts -->
+      <div class="space-y-1.5 pt-4 border-t border-slate-200">
+        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 mb-2">Tactical Simulations</div>
+
+        <button onclick="triggerSmurfingSim()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:text-red-700 hover:bg-red-50 transition-all group">
+          <div class="w-6 h-6 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center text-red-600 group-hover:scale-105 transition-transform">
+            <i class="fas fa-bolt text-[11px]"></i>
+          </div>
+          <span>Simulate Smurfing Ring</span>
+        </button>
+
+        <button onclick="triggerSyndicateSim()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:text-amber-700 hover:bg-amber-50 transition-all group">
+          <div class="w-6 h-6 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 group-hover:scale-105 transition-transform">
+            <i class="fas fa-radiation text-[11px]"></i>
+          </div>
+          <span>Simulate Device Syndicate</span>
+        </button>
+
+        <button onclick="retrainMLModel()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:text-blue-700 hover:bg-blue-50 transition-all group">
+          <div class="w-6 h-6 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 group-hover:scale-105 transition-transform">
+            <i class="fas fa-brain text-[11px]"></i>
+          </div>
+          <span>Retrain Model (SMOTE)</span>
+        </button>
+
+        <button onclick="resetSystemState()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all">
+          <div class="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
+            <i class="fas fa-arrow-rotate-left text-[11px]"></i>
+          </div>
+          <span>Reset Network State</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Bottom Sidebar Status Badge -->
+    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 status-dot-pulse"></span>
+          <span class="text-xs font-bold text-slate-900">System Online</span>
+        </div>
+        <span class="text-[9px] font-mono text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">8020-ACTIVE</span>
+      </div>
+      <div class="text-[11px] text-slate-500 leading-relaxed">
+        XGBoost Graph Anomaly Engine + SHAP Local TreeExplainer running.
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN WORKSPACE CONTENT -->
+  <!-- ===================================================================== -->
+  <div class="flex-1 flex flex-col min-w-0 min-h-screen">
+    
+    <!-- Top Floating Header Bar -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200 px-6 py-3.5 flex items-center justify-between">
+      
+      <!-- Current Title & Breadcrumb -->
+      <div class="flex items-center space-x-3">
+        <div class="text-xs font-semibold text-slate-500">FinGraph / <span id="header-breadcrumb" class="text-slate-900 font-bold">User Payment Portal</span></div>
+      </div>
+
+      <!-- Top Right Controls -->
+      <div class="flex items-center space-x-3">
+        
+        <!-- Mobile Switcher Toggle -->
+        <div class="flex items-center p-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold md:hidden">
+          <button id="mobile-tab-user" onclick="switchPortal('USER')" class="px-3 py-1 rounded-full bg-blue-600 text-white">User</button>
+          <button id="mobile-tab-admin" onclick="switchPortal('ADMIN')" class="px-3 py-1 rounded-full text-slate-600">Admin</button>
+        </div>
+
+        <!-- ML Performance Pill with Clean Styling -->
+        <div id="ml-metrics-badge" class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-mono font-medium shadow-sm">
+          <i class="fas fa-bolt text-[10px]"></i>
+          <span>XGBoost + SMOTE: 100% Acc</span>
+        </div>
+
+        <!-- Active Persona Selector Pill -->
+        <div class="flex items-center space-x-2.5 bg-white border border-slate-200 rounded-full pl-2.5 pr-3 py-1 shadow-sm">
+          <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white shadow-inner">
+            <span id="user-avatar-initials">AS</span>
+          </div>
+          <select id="profile-select" class="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer border-none pr-1">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-16 right-6 z-50 flex flex-col space-y-2 max-w-sm pointer-events-none"></div>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="flex-1 p-6 space-y-6 max-w-[1550px] w-full mx-auto">
+
+      <!-- ================================================================= -->
+      <!-- VIEW 1: USER PORTAL (Enterprise Payments & Expense Analytics) -->
+      <!-- ================================================================= -->
+      <div id="view-user-portal" class="space-y-6">
+        
+        <!-- Top Metrics Cards Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="crypto-card p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Available Liquidity</span>
+              <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shadow-sm">
+                <i class="fas fa-wallet text-xs"></i>
+              </div>
+            </div>
+            <div id="stat-balance" class="text-2xl font-bold text-slate-900 font-mono mt-2 tracking-tight">$14,250.00</div>
+            <div class="flex items-center space-x-1.5 mt-2.5 text-xs text-emerald-600 font-semibold">
+              <span class="pill-badge badge-emerald">+4.8% (24h)</span>
+              <span class="text-[10px] text-slate-400">Audited Ledger</span>
+            </div>
+          </div>
+
+          <div class="crypto-card p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Total Outflow (Spend)</span>
+              <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shadow-sm">
+                <i class="fas fa-arrow-up-right-from-square text-xs"></i>
+              </div>
+            </div>
+            <div id="stat-spent" class="text-2xl font-bold text-slate-900 font-mono mt-2 tracking-tight">$510.80</div>
+            <div class="flex items-center space-x-1.5 mt-2.5 text-[11px] text-slate-500">
+              <span class="pill-badge badge-blue">5 Categories</span>
+              <span class="text-[10px] text-slate-400">Recorded Activity</span>
+            </div>
+          </div>
+
+          <div class="crypto-card p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Total Inflow (Settled)</span>
+              <div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 text-sky-600 flex items-center justify-center shadow-sm">
+                <i class="fas fa-arrow-down-left-and-up-right-to-center text-xs"></i>
+              </div>
+            </div>
+            <div id="stat-inflow" class="text-2xl font-bold text-slate-900 font-mono mt-2 tracking-tight">$0.00</div>
+            <div class="flex items-center space-x-1.5 mt-2.5 text-[11px] text-sky-600">
+              <span class="pill-badge badge-cyan">Settled Wires</span>
+              <span class="text-[10px] text-slate-400">Merchant Gateway</span>
+            </div>
+          </div>
+
+          <div class="crypto-card p-5 relative overflow-hidden group">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Account Status & Tier</span>
+              <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center shadow-sm">
+                <i class="fas fa-shield-check text-xs"></i>
+              </div>
+            </div>
+            <div class="text-base font-bold text-slate-900 mt-2 flex items-center space-x-2">
+              <span id="user-role-badge" class="pill-badge badge-blue">CUSTOMER</span>
+              <span class="pill-badge badge-emerald">KYC VERIFIED</span>
+            </div>
+            <div class="text-[11px] text-slate-500 mt-2.5 font-mono" id="user-account-id">ACC-ALICE-101</div>
+          </div>
+
+        </div>
+
+        <!-- Main Middle Grid: Payment Form & Dynamic Doughnut Chart -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left 6-cols: Transaction Send Form -->
+          <div class="lg:col-span-6 crypto-card p-6 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                  <i class="fas fa-paper-plane text-blue-600"></i>
+                  <span>Execute Payment / Transfer</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Submit transfers and merchant payments with behavioral profiling</p>
+              </div>
+              <span class="pill-badge badge-blue">INSTANT SETTLEMENT</span>
+            </div>
+
+            <form id="tx-form" class="space-y-4">
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1.5">Recipient Address / Account</label>
+                  <select id="tx-recipient" class="w-full crypto-input p-2.5 text-xs text-slate-900">
+                    <!-- Populated via JS -->
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1.5">Amount ($USD)</label>
+                  <div class="relative">
+                    <span class="absolute left-3 top-2.5 text-slate-400 text-xs font-mono">$</span>
+                    <input type="number" step="0.01" min="1" id="tx-amount" required placeholder="85.00" class="w-full crypto-input pl-7 pr-3 py-2 text-xs text-slate-900 font-mono">
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1.5">Transaction Type</label>
+                  <select id="tx-type" class="w-full crypto-input p-2.5 text-xs text-slate-900">
+                    <option value="Transfer">Account Transfer</option>
+                    <option value="Payment">Merchant Payment</option>
+                    <option value="Purchase">Online Purchase</option>
+                  </select>
+                </div>
+
+                <!-- Category Dropdown: Food, Entertainment, Sports, Shopping, Bills -->
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 mb-1.5">Expense Asset Category</label>
+                  <select id="tx-category" required class="w-full crypto-input p-2.5 text-xs text-slate-900 font-semibold">
+                    <option value="Food">Food (FOD)</option>
+                    <option value="Entertainment">Entertainment (ENT)</option>
+                    <option value="Sports">Sports (SPT)</option>
+                    <option value="Shopping">Shopping (SHP)</option>
+                    <option value="Bills">Bills (BIL)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Custom Description Text Field -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Custom Transaction Note</label>
+                <input type="text" id="tx-description" required placeholder="e.g., snacks, movie tickets, cloud servers..." class="w-full crypto-input px-3 py-2 text-xs text-slate-900">
+                <span class="text-[10px] text-slate-500 mt-1 block">Contextual purpose memo audited during behavioral graph anomaly detection</span>
+              </div>
+
+              <!-- Predicted Frequency Field -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">Expected Transaction Frequency</label>
+                <select id="tx-frequency" class="w-full crypto-input p-2.5 text-xs text-slate-900">
+                  <option value="Daily">Daily (Regular micro-outlay cadence)</option>
+                  <option value="Weekly" selected>Weekly (Regular weekly recurring)</option>
+                  <option value="Monthly">Monthly (Rent, utilities, monthly cycle)</option>
+                  <option value="Quarterly">Quarterly (Periodic settlement)</option>
+                  <option value="Rare / One-off">Rare / One-off (Discretionary purchase)</option>
+                </select>
+                <span class="text-[10px] text-slate-500 mt-1 block">Specifies expected velocity pattern of this activity</span>
+              </div>
+
+              <button type="submit" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-lg shadow-sm transition-all flex items-center justify-center space-x-2">
+                <i class="fas fa-check"></i>
+                <span>Confirm Payment & Update Graph</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Right 6-cols: Dynamic Asset Allocation Doughnut Chart -->
+          <div class="lg:col-span-6 crypto-card p-6 flex flex-col justify-between space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                  <i class="fas fa-chart-pie text-blue-600"></i>
+                  <span>Expense Asset Allocation</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Amount ($) distribution across transaction categories</p>
+              </div>
+              <span class="pill-badge badge-emerald">DYNAMIC SYNC</span>
+            </div>
+
+            <!-- Doughnut Canvas Container -->
+            <div class="relative h-60 w-full flex items-center justify-center my-2">
+              <canvas id="expense-pie-chart"></canvas>
+            </div>
+
+            <!-- Category Legend Breakdown List with Coin Badges -->
+            <div id="category-breakdown-list" class="space-y-2 pt-3 border-t border-slate-100">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Recent Transactions Ledger Table (Light Mode Style) -->
+        <div class="crypto-card p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fas fa-list-check text-blue-600"></i>
+                <span>Wallet Activity & Audit Trail</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Audited payment transactions with asset tokens</p>
+            </div>
+            <span class="text-xs text-slate-400 font-mono">15 Most Recent Records</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider bg-slate-50">
+                  <th class="py-3 px-3">Asset</th>
+                  <th class="py-3 px-3">Recipient / Target</th>
+                  <th class="py-3 px-3">Tx Hash</th>
+                  <th class="py-3 px-3">Purpose Memo</th>
+                  <th class="py-3 px-3">Cadence</th>
+                  <th class="py-3 px-3 text-right">Amount</th>
+                  <th class="py-3 px-3 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody id="tx-history-tbody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 2: ADMIN TACTICAL GRAPH PORTAL (Red-Rings & SHAP) -->
+      <!-- ================================================================= -->
+      <div id="view-admin-portal" class="hidden space-y-6">
+        
+        <!-- Top Telemetry Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="crypto-card p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Monitored Nodes</span>
+              <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 flex items-center justify-center shadow-sm">
+                <i class="fas fa-network-wired text-xs"></i>
+              </div>
+            </div>
+            <div id="stat-total-nodes" class="text-2xl font-bold text-slate-900 font-mono mt-2 tracking-tight">--</div>
+            <div class="text-[11px] text-slate-400 mt-2">Accounts, Devices, Merchants, Nodes</div>
+          </div>
+
+          <div class="crypto-card p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Active Graph Edges</span>
+              <div class="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 text-sky-600 flex items-center justify-center shadow-sm">
+                <i class="fas fa-arrows-split-up-and-left text-xs"></i>
+              </div>
+            </div>
+            <div id="stat-total-edges" class="text-2xl font-bold text-slate-900 font-mono mt-2 tracking-tight">--</div>
+            <div class="text-[11px] text-slate-400 mt-2">Transfers, Sessions, Settlement Routes</div>
+          </div>
+
+          <div class="crypto-card p-5 relative overflow-hidden border-l-4 border-l-red-500">
+            <div class="flex items-center justify-between text-red-600 text-xs font-semibold">
+              <span>Red-Ring Anomaly Rings</span>
+              <div class="w-8 h-8 rounded-lg bg-red-50 border border-red-200 text-red-600 flex items-center justify-center shadow-sm">
+                <i class="fas fa-triangle-exclamation text-xs"></i>
+              </div>
+            </div>
+            <div id="stat-red-rings" class="text-2xl font-bold text-red-600 font-mono mt-2 tracking-tight">--</div>
+            <div class="text-[11px] text-red-500/90 mt-2">Isolated anomalous subgraphs</div>
+          </div>
+
+          <div class="crypto-card p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Classification Topology</span>
+              <div class="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center shadow-sm">
+                <i class="fas fa-sitemap text-xs"></i>
+              </div>
+            </div>
+            <div id="stat-risk-clusters" class="text-sm font-bold text-slate-900 mt-2">Smurf / Syndicate</div>
+            <div class="text-[11px] text-slate-400 mt-2">Classified by XGBoost + SMOTE</div>
+          </div>
+
+        </div>
+
+        <!-- Tactical Graph Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left 8-cols: Cytoscape Viewport & Video Dock -->
+          <div class="lg:col-span-8 space-y-4">
+            <div class="crypto-card p-4 relative">
+              
+              <!-- Floating Toolbar inside Canvas Top -->
+              <div class="absolute top-7 left-7 z-10 flex flex-wrap items-center gap-2 bg-white/95 px-3 py-1.5 rounded-lg shadow-sm border border-slate-200 backdrop-blur-md">
+                
+                <!-- Layout selector -->
+                <div class="flex items-center space-x-1.5 text-xs text-slate-600">
+                  <i class="fas fa-bezier-curve text-blue-600 text-[11px]"></i>
+                  <select onchange="setGraphLayout(this.value)" class="bg-transparent text-xs text-slate-800 focus:outline-none cursor-pointer font-semibold border-none">
+                    <option value="smart">Untangled Tactical View</option>
+                    <option value="circle">Circular Network</option>
+                    <option value="concentric">Concentric Rings</option>
+                    <option value="breadthfirst">Hierarchical Tree</option>
+                  </select>
+                </div>
+
+                <span class="w-[1px] h-3 bg-slate-200"></span>
+
+                <!-- Filter selector -->
+                <div class="flex items-center space-x-1.5 text-xs text-slate-600">
+                  <i class="fas fa-filter text-sky-600 text-[11px]"></i>
+                  <select onchange="filterGraphNodes(this.value)" class="bg-transparent text-xs text-slate-800 focus:outline-none cursor-pointer font-semibold border-none">
+                    <option value="all">All Entities</option>
+                    <option value="red_rings">Red Rings Only</option>
+                    <option value="account">Accounts</option>
+                    <option value="device">Devices</option>
+                    <option value="merchant">Merchants</option>
+                  </select>
+                </div>
+
+                <span class="w-[1px] h-3 bg-slate-200"></span>
+
+                <!-- Untangle & Zoom Controls -->
+                <div class="flex items-center space-x-1">
+                  <button onclick="untangleGraph()" title="Untangle Graph" class="px-2.5 py-0.5 rounded bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[11px] text-blue-700 flex items-center space-x-1 font-semibold transition-colors">
+                    <i class="fas fa-wand-magic-sparkles text-[10px] text-blue-600"></i>
+                    <span>Untangle</span>
+                  </button>
+                  <button onclick="zoomInGraph()" title="Zoom In" class="w-6 h-6 rounded hover:bg-slate-100 text-xs text-slate-600 flex items-center justify-center"><i class="fas fa-plus"></i></button>
+                  <button onclick="zoomOutGraph()" title="Zoom Out" class="w-6 h-6 rounded hover:bg-slate-100 text-xs text-slate-600 flex items-center justify-center"><i class="fas fa-minus"></i></button>
+                  <button onclick="zoomFitGraph()" title="Fit to Screen" class="w-6 h-6 rounded hover:bg-slate-100 text-xs text-slate-600 flex items-center justify-center"><i class="fas fa-expand"></i></button>
+                </div>
+
+              </div>
+
+              <!-- Cytoscape Viewport Wrapper with Canvas & Particle Simulation Layer -->
+              <div class="cy-viewport-wrapper">
+                <div id="cy-container"></div>
+                <canvas id="particle-canvas"></canvas>
+
+                <!-- Floating Video-Player-Style Simulation Control Dock -->
+                <div class="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-3 floating-dock px-4 py-2 text-xs">
+                  
+                  <!-- Play / Pause Button -->
+                  <button id="sim-play-btn" onclick="toggleSimulationPlayback()" title="Play / Pause Flow Simulation" class="w-7 h-7 rounded-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-all shadow-sm">
+                    <i id="sim-play-icon" class="fas fa-pause text-xs"></i>
+                  </button>
+
+                  <div class="h-4 w-[1px] bg-slate-200"></div>
+
+                  <!-- Speed Multipliers -->
+                  <div class="flex items-center space-x-1 bg-slate-100 p-0.5 rounded-full text-[11px] font-semibold">
+                    <button id="sim-speed-1" onclick="setSimulationSpeed(1)" class="px-2.5 py-0.5 rounded-full bg-blue-600 text-white transition-all">1x</button>
+                    <button id="sim-speed-2" onclick="setSimulationSpeed(2)" class="px-2.5 py-0.5 rounded-full text-slate-600 hover:text-slate-900 transition-all">2x</button>
+                    <button id="sim-speed-5" onclick="setSimulationSpeed(5)" class="px-2.5 py-0.5 rounded-full text-slate-600 hover:text-slate-900 transition-all">5x</button>
+                  </div>
+
+                  <div class="h-4 w-[1px] bg-slate-200"></div>
+
+                  <!-- Live FPS Counter -->
+                  <div class="flex items-center space-x-1.5 px-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 status-dot-pulse"></span>
+                    <span id="sim-fps-counter" class="text-emerald-600 font-mono text-[11px] font-semibold">60 FPS</span>
+                  </div>
+
+                  <div class="h-4 w-[1px] bg-slate-200"></div>
+
+                  <!-- Camera Reset -->
+                  <button onclick="zoomFitGraph()" title="Reset Camera View" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-all">
+                    <i class="fas fa-crosshairs text-xs"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Bottom Canvas Legend -->
+              <div class="flex flex-wrap items-center justify-between gap-3 pt-3 mt-1 border-t border-slate-100 text-[11px] text-slate-600">
+                <div class="flex flex-wrap items-center gap-4">
+                  <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span><span>Customer</span></div>
+                  <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span><span>Account</span></div>
+                  <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span><span>Device</span></div>
+                  <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span><span>Merchant</span></div>
+                  <div class="flex items-center space-x-1.5"><span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span><span class="text-red-600 font-semibold">Red-Ring Anomaly (Click for SHAP)</span></div>
+                </div>
+                <div class="text-[10px] text-slate-400">Click any node or red ring for SHAP attribution</div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Right 4-cols: Flagged Red-Ring Clusters & Entity Inspector -->
+          <div class="lg:col-span-4 space-y-4">
+            
+            <!-- Flagged Red-Ring Clusters List -->
+            <div class="crypto-card p-5 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center space-x-2">
+                  <i class="fas fa-radiation text-red-600"></i>
+                  <span>Flagged Red-Ring Clusters</span>
+                </h4>
+                <span class="pill-badge badge-crimson">XGBOOST AI</span>
+              </div>
+
+              <div id="flagged-clusters-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+
+            <!-- Entity Inspection Card -->
+            <div id="node-inspection-card" class="crypto-card p-5 space-y-2.5 hidden">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wide">Node Telemetry</span>
+                <button onclick="closeNodeInspection()" class="text-slate-400 hover:text-slate-600 text-xs"><i class="fas fa-xmark"></i></button>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between"><span class="text-slate-500">ID:</span><span id="inspect-node-id" class="font-mono text-blue-600 font-semibold">--</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Type:</span><span id="inspect-node-type" class="font-semibold text-slate-800">--</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Label:</span><span id="inspect-node-label" class="text-slate-800 font-medium">--</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Risk Status:</span><span id="inspect-node-risk" class="font-bold text-emerald-600">LOW</span></div>
+                <div class="pt-2 text-[11px] text-slate-600 whitespace-pre-line font-mono" id="inspect-node-details"></div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Real-Time System Log Monitor Feed -->
+        <div class="crypto-card p-6 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+                <i class="fas fa-terminal text-blue-600"></i>
+                <span>Audit Trail & Security Event Explorer</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">Streaming financial events, graph scans, and ML inferences</p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 status-dot-pulse"></span>
+              <span class="text-[10px] font-mono text-slate-500">LIVE WEBSOCKET / REST PING</span>
+            </div>
+          </div>
+
+          <div id="system-logs-container" class="max-h-60 overflow-y-auto space-y-1.5 pr-1 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- EXPLAINABLE AI (SHAP) COMMAND DIALOG (LIGHT MODE) -->
+  <!-- ===================================================================== -->
+  <div id="shap-modal" class="fixed inset-0 z-50 modal-overlay flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-5 p-7 animate-scale-up">
+      
+      <!-- Command Dialog Header -->
+      <div class="flex items-start justify-between border-b border-slate-100 pb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-red-600 shadow-sm">
+            <i class="fas fa-brain text-sm"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="text-base font-bold text-slate-900">Explainable AI (SHAP) Attribution</h3>
+              <span id="modal-cluster-id" class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">CLUSTER-SMURF-01</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">TreeExplainer local feature attribution for flagged red-ring anomaly</p>
+          </div>
+        </div>
+
+        <button onclick="closeShapModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors">
+          <i class="fas fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Telemetry Strip Inside Dialog -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+        <div>
+          <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Classification</span>
+          <span id="modal-anomaly-badge" class="font-bold text-red-600 mt-1 block">SMURFING</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Probability</span>
+          <span id="modal-pred-val" class="font-bold text-slate-900 font-mono mt-1 block">99.8%</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Base Value</span>
+          <span id="modal-base-val" class="font-mono text-blue-600 mt-1 block">0.333</span>
+        </div>
+        <div>
+          <span class="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Risk Level</span>
+          <span id="modal-risk-level" class="font-bold text-red-600 mt-1 block">CRITICAL</span>
+        </div>
+      </div>
+
+      <!-- Encircled Nodes Pill Badges -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-semibold text-slate-700 block">Nodes Encircled in Red Ring:</span>
+        <div id="modal-involved-nodes" class="flex flex-wrap gap-1.5">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+      <!-- SHAP Feature Contributions Horizontal Chart -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-semibold text-slate-900">SHAP Feature Contributions (Shapley Additive Values)</span>
+          <div class="flex items-center space-x-3 text-[10px]">
+            <span class="flex items-center space-x-1 text-red-600 font-medium"><span class="w-2 h-2 rounded-full bg-red-500"></span><span>Raises Risk (+SHAP)</span></span>
+            <span class="flex items-center space-x-1 text-emerald-600 font-medium"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>Lowers Risk (-SHAP)</span></span>
+          </div>
+        </div>
+        <div class="h-60 w-full bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <canvas id="shap-chart-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Human-Readable Narrative Briefing -->
+      <div id="modal-human-narrative">
+        <!-- Populated via JS -->
+      </div>
+
+      <!-- Action Footer -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
+        <div class="flex items-center space-x-2">
+          <button onclick="handleFreezeAccounts()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition-all flex items-center space-x-1.5 shadow-sm">
+            <i class="fas fa-lock"></i>
+            <span>Freeze Ring Accounts</span>
+          </button>
+          <button onclick="handleStepUpAuth()" class="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs transition-all flex items-center space-x-1.5 shadow-sm">
+            <i class="fas fa-fingerprint"></i>
+            <span>Request Biometric 2FA</span>
+          </button>
+          <button onclick="handleFalsePositive()" class="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all border border-slate-200">
+            <span>Mark False Positive</span>
+          </button>
+        </div>
+
+        <button onclick="closeShapModal()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 text-xs font-semibold border border-slate-200">
+          Dismiss
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/js/shap_modal.js"></script>
+  <script src="/static/js/graph.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
