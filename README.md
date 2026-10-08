@@ -117,4 +117,4 @@ http://localhost:8020
 
 4. **Live Attack Simulations**:
    - Click **⚡ Simulate Smurfing Ring**: A new multi-mule structuring chain is injected into the graph in real-time, receiving an immediate red ring!
-   - Click **🚨 Simulate Device Syndicate**: A 5-account proxy botnet is spawned and flagged
+   - Click **🚨 Simulate Device Syndicate**: A 5-account proxy botnet is spawned and flagged.
